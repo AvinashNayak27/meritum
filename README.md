@@ -23,14 +23,14 @@ MERITUM makes a company recognition budget usable from the place teams already t
 - Video: [Cap demo recording](https://cap.so/s/mes7dm5w10ygawb)
 - Real Bitrefill purchase invoice ID: `PENDING_REAL_PURCHASE`
 
-The demo is not complete until these values are replaced with a public 2–3 minute video and the ID of a real delivered purchase initiated by MERITUM. See [DEMO.md](DEMO.md) for the recording script. Mask every voucher code, PIN, payment address, and redemption link.
+The demo is not complete until these values are replaced with a public 2–3 minute video and the ID of a real delivered purchase initiated by MERITUM. See [DEMO.md](meritum-agent/DEMO.md) for the recording script. Mask every voucher code, PIN, payment address, and redemption link.
 
 ## Run it (under 15 minutes)
 
 ### Prerequisites
 
 - Node.js 20+ and npm
-- A Slack Developer Sandbox app configured from [manifest.json](manifest.json)
+- A Slack Developer Sandbox app configured from [manifest.json](meritum-agent/manifest.json)
 - A PostgreSQL/Supabase database
 - A Bankr LLM Gateway API key
 - A dedicated low-balance Bitrefill account with an API key and event credits
@@ -98,6 +98,7 @@ Bitrefill REST API v2 ──► company balance invoice ──► delivered rewa
 ## Verify
 
 ```bash
+cd meritum-agent
 npm run lint
 npm run check
 npm test
@@ -105,7 +106,7 @@ npm test
 
 ## Feedback
 
-See [FEEDBACK.md](FEEDBACK.md). The builder replaces its prompts with firsthand notes from the real Bitrefill integration before submission.
+See [FEEDBACK.md](meritum-agent/FEEDBACK.md). The builder replaces its prompts with firsthand notes from the real Bitrefill integration before submission.
 
 ## Important safety notes
 
