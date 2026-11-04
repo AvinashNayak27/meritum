@@ -2,11 +2,11 @@
 
 ### MERITUM — AI-Powered Employee Recognition & Rewards Agent
 
-**MERITUM** is a Slack-native AI agent that transforms employee recognition into real-world rewards.
+**MERITUM** is a Slack-native AI agent that transforms employee recognition into redeemable e-commerce gift cards.
 
 Managers and HR teams can recognize employees by awarding **Kudos points** directly within Slack. Each employee has a personalized Kudos wallet where they can track their points, explore rewards, and redeem them for digital gift cards, vouchers, and mobile recharges.
 
-Powered by **Bitrefill**, MERITUM autonomously discovers suitable rewards, processes purchases using a company-funded wallet, and securely delivers vouchers to employees.
+Powered by **Bitrefill**, MERITUM autonomously discovers suitable e-commerce gift cards, processes purchases using a company-funded wallet, and securely delivers redemption links to employees.
 
 The platform combines **AI-driven reward recommendations, autonomous commerce, secure wallet management, and spending controls** to make employee recognition effortless, personalized, and rewarding.
 
@@ -63,9 +63,9 @@ To run the real, low-value demo purchase, use a credited Bitrefill account, conf
 
 ## Bitrefill touchpoints (built vs reused)
 
-MERITUM directly integrates the **Bitrefill REST API v2**; it does not wrap the Bitrefill Assistant or MCP server.
+MERITUM directly integrates the **Bitrefill REST API v2**. We deliberately switched from the Bitrefill MCP/agent route to direct API calls and built our own custom agent tools, so MERITUM can apply product-specific guardrails before any purchase is created.
 
-- **Built:** Slack identity checks; an internal Kudos ledger; manager recognition; live Indian catalog projection; exact denomination validation; a transactionally reserved wallet; one outstanding redemption per employee; live-purchase switch; per-purchase and daily company face-value limits; Slack-event idempotency; owner-scoped invoice status; and private voucher delivery.
+- **Built:** Slack identity checks; an internal Kudos ledger; manager recognition; live Indian catalog projection; exact denomination and quantity validation; a transactionally reserved wallet; one outstanding redemption per employee; live-purchase switch; per-purchase and daily company face-value limits; Slack-event idempotency; owner-scoped invoice status; and private gift-link delivery. These custom tools prevent the agent from bypassing Kudos, DM-only, payment-currency, ownership, and delivery-safety checks.
 - **Reused:** Bitrefill catalog, invoice payment from the company balance, gift-card fulfillment, and final order delivery. The app calls `GET /products/search`, `GET /products/{id}`, `POST /invoices` with `payment_method: "balance"` and `auto_pay: true`, then `GET /invoices/{id}` and `GET /orders/{id}` until the order is `delivered`.
 
 ## Guardrails

@@ -1,18 +1,18 @@
 # Builder feedback for Bitrefill
 
-Replace the prompts below with the builder's own words before submission. This file is intentionally not a generated product review.
+MERITUM uses the Bitrefill REST API directly rather than the MCP or agent integration. That let us build custom tools and apply our own Kudos, identity, payment, and private-delivery guardrails around each purchase.
 
 ## What worked
 
-- [Add the exact REST endpoint, documentation, or support interaction that made building MERITUM faster.]
+- Native product discovery made it straightforward to find live e-commerce gift cards, and the invoice flow made it easy to purchase with the company balance and send gifts by email.
 
 ## What slowed us down
 
-- [Add the first confusing field, response shape, or error encountered while connecting the real purchase flow.]
+- The documentation did not make clear that AutoPay follows the account's primary dashboard currency. We saw low-balance errors and BTC invoices until we manually made USD the primary dashboard currency; this was difficult to diagnose, including through agents.
 
 ## What would make this better
 
-- [Add the smallest documentation, test-product, webhook, or API improvement that would help the next builder.]
+- Document the primary-currency requirement and expose the selected payment currency clearly in invoice creation. A sandbox test product or a delivery webhook would also make it easier to verify the full agent-driven redemption flow without manual reconciliation.
 
 ## Evidence to retain while building
 
