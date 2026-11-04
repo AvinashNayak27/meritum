@@ -1,35 +1,112 @@
-# MERITUM Slack Agent
+# MERITUM — AI-Powered Employee Recognition & Rewards Agent
 
-MERITUM is a Slack employee recognition and rewards assistant using Bolt for JavaScript, the Claude Agent SDK through Bankr, Supabase PostgreSQL, and the Bitrefill REST API.
+### MERITUM — AI-Powered Employee Recognition & Rewards Agent
 
-Members can check their own Kudos, transfer Kudos to colleagues, browse live Indian rewards, and redeem a gift card at **1 Kudos = ₹1 of face value**. Administrators receive their configured initial allocation once.
+**MERITUM** is a Slack-native AI agent that transforms employee recognition into real-world rewards.
 
-## Rewards
+Managers and HR teams can recognize employees by awarding **Kudos points** directly within Slack. Each employee has a personalized Kudos wallet where they can track their points, explore rewards, and redeem them for digital gift cards, vouchers, and mobile recharges.
 
-Custom application tools call `https://api.bitrefill.com/v2` using `BITREFILL_API_KEY` as a bearer token. There is no connection to Bitrefill’s MCP server. The Claude SDK uses an in-process tool container called `meritum-rewards` to expose these application functions.
+Powered by **Bitrefill**, MERITUM autonomously discovers suitable rewards, processes purchases using a company-funded wallet, and securely delivers vouchers to employees.
 
-- Search and details return product identity, availability, and INR face values. Provider prices, funding balances, raw errors, and account metadata never enter agent tool results.
-- Redemption identifies the sender from the Slack event, checks their available Kudos, verifies the live denomination, and reserves points under a PostgreSQL wallet lock before creating an invoice.
-- The app verifies the REST funding currency is USD before creating an invoice with `payment_method: 'balance'` and `auto_pay: true`. Creation pays automatically; there is no second pay request or user confirmation. Non-USD funding blocks creation. Uncertain creation keeps Kudos reserved for reconciliation.
-- The account’s REST API currency must be configured as USD in Bitrefill. The documented REST invoice schema does not expose a balance currency selector. The app never assumes that passing an unsupported currency parameter would select USD.
-- Confirmed payment burns the reserved Kudos. Uncertain payment keeps them reserved, blocks another pending redemption, and uses status lookup rather than retrying the payment.
-- History, status, and vouchers are scoped to the Slack sender and available only in DMs. Nonadmins have no provider balance tool. Admin funding readiness returns booleans only; the agent never displays funding amounts, including to admins.
+The platform combines **AI-driven reward recommendations, autonomous commerce, secure wallet management, and spending controls** to make employee recognition effortless, personalized, and rewarding.
 
-The SDK subprocess has no built-in shell/file tools, uses a temporary home and working directory, ignores local settings/MCP configuration, and receives only the runtime environment and Bankr credentials. The app’s optional Slack MCP is explicitly configured separately.
+**Tagline:** _Recognize merit. Reward instantly._
 
-## Running
+## Lane: 4 — Home-cooked commerce
 
-Populate `.env` in this directory using `.env.sample`. Required settings include Slack tokens, `SLACK_TEAM_ID`, `DATABASE_URL`, `BANKR_LLM_API_KEY`, and `BITREFILL_API_KEY`. Keep populated environment files private.
+**The loop:** manager recognition in Slack → employee's Kudos wallet, caps, and idempotency guarantee → Bitrefill REST purchase → private delivery and `delivered` order status.
 
-Run `slack run` or `npm start`. Database migrations run before startup. `npm run db:migrate` applies them separately and records completed filenames.
+MERITUM makes a company recognition budget usable from the place teams already talk. A manager grants Kudos for specific work; the employee chooses a live India reward in a Slack DM; the agent creates and pays a Bitrefill invoice from the company-funded balance; and MERITUM follows the order through delivery without exposing the gift code in a channel.
 
-## Source
+## Demo
 
-- `agent/meritum.js`: persona and custom application tool registration.
-- `lib/agent-runtime.js`: isolated Claude SDK configuration.
-- `lib/bitrefill.js`: direct REST client, response projection, denomination and USD checks.
-- `lib/rewards.js`: redemption orchestration and owner-scoped status/history.
-- `lib/wallets.js`: transactional Kudos ledger.
-- `db/migrations/`: PostgreSQL schema.
+- Video: `PENDING_DEMO_VIDEO`
+- Real Bitrefill purchase invoice ID: `PENDING_REAL_PURCHASE`
 
-References: [Bitrefill API overview](https://docs.bitrefill.com/docs/api-overview), [invoice creation](https://docs.bitrefill.com/reference/post_invoices), [invoice payment](https://docs.bitrefill.com/reference/post_invoices-id-pay), [Bankr gateway](https://docs.bankr.bot/llm-gateway/overview/), [Slack agents](https://docs.slack.dev/ai/developing-agents/).
+The demo is not complete until these values are replaced with a public 2–3 minute video and the ID of a real delivered purchase initiated by MERITUM. See [DEMO.md](DEMO.md) for the recording script. Mask every voucher code, PIN, payment address, and redemption link.
+
+## Run it (under 15 minutes)
+
+### Prerequisites
+
+- Node.js 20+ and npm
+- A Slack Developer Sandbox app configured from [manifest.json](manifest.json)
+- A PostgreSQL/Supabase database
+- A Bankr LLM Gateway API key
+- A dedicated low-balance Bitrefill account with an API key and event credits
+
+### Setup
+
+```bash
+git clone <your-public-repository-url>
+cd meritum/meritum-agent
+npm install
+cp .env.sample .env
+```
+
+Fill `.env` with the Slack, database, Bankr, and Bitrefill credentials. Keep the following limits low for the demo and leave purchasing disabled until the real test is ready:
+
+```dotenv
+LIVE_PURCHASES_ENABLED=false
+MAX_REWARD_PER_PURCHASE_INR=100
+MAX_REWARD_PER_DAY_INR=300
+```
+
+Apply the schema and start the Slack app:
+
+```bash
+npm run db:migrate
+slack run
+```
+
+To run the real, low-value demo purchase, use a credited Bitrefill account, confirm the limits, then set `LIVE_PURCHASES_ENABLED=true` and restart. A missing or malformed setting keeps purchases off.
+
+## Bitrefill touchpoints (built vs reused)
+
+MERITUM directly integrates the **Bitrefill REST API v2**; it does not wrap the Bitrefill Assistant or MCP server.
+
+- **Built:** Slack identity checks; an internal Kudos ledger; manager recognition; live Indian catalog projection; exact denomination validation; a transactionally reserved wallet; one outstanding redemption per employee; live-purchase switch; per-purchase and daily company face-value limits; Slack-event idempotency; owner-scoped invoice status; and private voucher delivery.
+- **Reused:** Bitrefill catalog, invoice payment from the company balance, gift-card fulfillment, and final order delivery. The app calls `GET /products/search`, `GET /products/{id}`, `POST /invoices` with `payment_method: "balance"` and `auto_pay: true`, then `GET /invoices/{id}` and `GET /orders/{id}` until the order is `delivered`.
+
+## Guardrails
+
+The default maximum is **₹100 / 100 Kudos per purchase** and **₹300 / 300 Kudos per program day**, configured by `MAX_REWARD_PER_PURCHASE_INR` and `MAX_REWARD_PER_DAY_INR`. These are code-enforced before an invoice is created. A manager or administrator must approve any larger reward outside the agent, then update the configuration deliberately; the model has no tool to override a cap.
+
+Further guarantees:
+
+- purchases are blocked by default and require `LIVE_PURCHASES_ENABLED=true`;
+- only a verified Slack DM can create a redemption;
+- the employee must have sufficient available Kudos and a verified Slack email;
+- product, stock, country, recipient type, and exact INR denomination are verified live;
+- Kudos are reserved before the provider request; ambiguous provider outcomes remain reserved and are reconciled instead of retried;
+- a Slack-event-derived idempotency key prevents duplicate purchases; and
+- voucher links are delivered privately and provider funding balances, prices, codes, and links are withheld from agent output.
+
+## Architecture
+
+```text
+Slack DM / App Home
+        │
+        ▼
+MERITUM agent (Bolt + Claude Agent SDK via Bankr)
+        │                 │
+        │                 └── Supabase/PostgreSQL: Kudos, reservations, idempotency
+        ▼
+Bitrefill REST API v2 ──► company balance invoice ──► delivered reward
+```
+
+## Verify
+
+```bash
+npm run lint
+npm run check
+npm test
+```
+
+## Feedback
+
+See [FEEDBACK.md](FEEDBACK.md). The builder replaces its prompts with firsthand notes from the real Bitrefill integration before submission.
+
+## Important safety notes
+
+Use a dedicated, low-balance Bitrefill account. Never commit `.env`, API keys, voucher codes, PINs, payment addresses, or redemption links. A completed Bitrefill invoice is not sufficient proof of fulfillment: record the order only when its status is `delivered`.

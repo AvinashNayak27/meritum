@@ -22,7 +22,14 @@ const product = {
   balance: 999,
   payment: { currency: 'USD', price: 1.25 },
 };
-function fixture({ available = 100, currency = 'USD', payError = false, paid = true, livePurchases = true, spendToday = 0 } = {}) {
+function fixture({
+  available = 100,
+  currency = 'USD',
+  payError = false,
+  paid = true,
+  livePurchases = true,
+  spendToday = 0,
+} = {}) {
   config.livePurchases = livePurchases;
   const calls = [];
   const invoice = { id: 'invoice-1', status: 'unpaid', payment: { method: 'balance', currency }, orders: [] };
@@ -79,10 +86,16 @@ test('face-value purchase and daily caps block an invoice before it is created',
   try {
     let setup = fixture({ available: 200 });
     await assert.rejects(setup.service.redeem(context, product.id, 100, 2), /per-purchase limit/);
-    assert.equal(setup.calls.some(([path]) => path === '/invoices'), false);
+    assert.equal(
+      setup.calls.some(([path]) => path === '/invoices'),
+      false,
+    );
     setup = fixture({ available: 100, spendToday: 75 });
     await assert.rejects(setup.service.redeem(context, product.id, 100), /daily program limit/);
-    assert.equal(setup.calls.some(([path]) => path === '/invoices'), false);
+    assert.equal(
+      setup.calls.some(([path]) => path === '/invoices'),
+      false,
+    );
   } finally {
     config.maxRewardPerPurchaseInr = originalPurchaseCap;
     config.maxRewardPerDayInr = originalDayCap;
