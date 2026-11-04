@@ -8,7 +8,7 @@ MERITUM uses the Bitrefill REST API directly rather than the MCP or agent integr
 
 ## What slowed us down
 
-- The documentation did not make clear that AutoPay follows the account's primary dashboard currency. We saw low-balance errors and BTC invoices until we manually made USD the primary dashboard currency; this was difficult to diagnose, including through agents.
+- The documentation did not make clear that AutoPay follows the account's primary dashboard payment currency. We saw low-balance errors and BTC invoices until we manually made USD the primary currency in the Bitrefill dashboard; this was difficult to diagnose, including through agents.
 
 ## What would make this better
 

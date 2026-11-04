@@ -67,6 +67,7 @@ MERITUM directly integrates the **Bitrefill REST API v2**. We deliberately switc
 
 - **Built:** Slack identity checks; an internal Kudos ledger; manager recognition; live Indian catalog projection; exact denomination and quantity validation; a transactionally reserved wallet; one outstanding redemption per employee; live-purchase switch; per-purchase and daily company face-value limits; Slack-event idempotency; owner-scoped invoice status; and private gift-link delivery. These custom tools prevent the agent from bypassing Kudos, DM-only, payment-currency, ownership, and delivery-safety checks.
 - **Reused:** Bitrefill catalog, invoice payment from the company balance, gift-card fulfillment, and final order delivery. The app calls `GET /products/search`, `GET /products/{id}`, `POST /invoices` with `payment_method: "balance"` and `auto_pay: true`, then `GET /invoices/{id}` and `GET /orders/{id}` until the order is `delivered`.
+- **Important setup finding:** Bitrefill AutoPay uses the account's primary dashboard payment currency. Set USD as the primary currency in the Bitrefill dashboard before running MERITUM; the REST invoice request does not expose a reliable currency selector, and an account with BTC as primary can create BTC invoices instead.
 
 ## Guardrails
 
