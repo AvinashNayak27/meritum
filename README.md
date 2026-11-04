@@ -23,7 +23,7 @@ MERITUM makes a company recognition budget usable from the place teams already t
 - Video: [Cap demo recording](https://cap.so/s/mes7dm5w10ygawb)
 - Redeemed Bitrefill demonstration gift: [view redeemed gift](https://www.bitrefill.com/gift/gift-101dc38d-d87e-4439-9199-19df1b4ef09d)
 
-See [DEMO.md](meritum-agent/DEMO.md) for the recording script. The linked demonstration gift has already been redeemed; never publish active voucher codes, PINs, payment addresses, or redemption links.
+The linked demonstration gift has already been redeemed; never publish active voucher codes, PINs, payment addresses, or redemption links.
 
 ## Run it (under 15 minutes)
 
