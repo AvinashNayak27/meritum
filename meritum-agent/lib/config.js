@@ -17,10 +17,7 @@ export const config = {
   initialAdminKudos: Number.parseInt(process.env.INITIAL_ADMIN_KUDOS || '2500', 10),
   kudosPerInr: Number.parseFloat(process.env.KUDOS_PER_INR || '1'),
   bitrefillApiKey: process.env.BITREFILL_API_KEY,
-  // Purchasing is opt-in. A missing or malformed value must never enable a charge.
   livePurchases: enabled(process.env.LIVE_PURCHASES_ENABLED),
-  // Face-value caps are the company authorization boundary. Provider funding
-  // values stay outside the agent context.
   maxRewardPerPurchaseInr: Number.parseInt(process.env.MAX_REWARD_PER_PURCHASE_INR || '100', 10),
   maxRewardPerDayInr: Number.parseInt(process.env.MAX_REWARD_PER_DAY_INR || '300', 10),
 };

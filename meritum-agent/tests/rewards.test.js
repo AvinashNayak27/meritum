@@ -23,8 +23,6 @@ const product = {
   payment: { currency: 'USD', price: 1.25 },
 };
 function fixture({ available = 100, currency = 'USD', payError = false, paid = true, livePurchases = true, spendToday = 0 } = {}) {
-  // These service tests exercise the guarded purchase path, not process-env parsing.
-  // Production remains off until LIVE_PURCHASES_ENABLED=true is set explicitly.
   config.livePurchases = livePurchases;
   const calls = [];
   const invoice = { id: 'invoice-1', status: 'unpaid', payment: { method: 'balance', currency }, orders: [] };
