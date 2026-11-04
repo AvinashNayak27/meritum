@@ -9,4 +9,4 @@ Record a two-to-three minute screen capture in a Slack Developer Sandbox. Use a 
 5. Ask for redemption status until the Bitrefill order reports `delivered`. Show the private Slack delivery button or the user's reward email, with all codes, PINs and links masked.
 6. Demonstrate one guardrail: request a reward over the cap and show that no invoice is created. Then show that a second request with the same Slack event is deduplicated.
 
-Before recording, replace the README's `PENDING_REAL_PURCHASE` placeholder with the delivered invoice ID and add the final video URL. Never commit the gift-card code, the invoice payment address, API keys, or a voucher link.
+Before recording, add the final video URL to the README. Never commit an active gift-card code, invoice payment address, API key, or redemption link.

@@ -17,5 +17,4 @@ MERITUM uses the Bitrefill REST API directly rather than the MCP or agent integr
 ## Evidence to retain while building
 
 - API surface used: Bitrefill REST API v2 (`GET /products/search`, `GET /products/{id}`, `POST /invoices`, `GET /invoices/{id}`, `GET /orders/{id}`).
-- First real purchase invoice ID: `PENDING_REAL_PURCHASE`.
-- Do not add gift-card codes, PINs, redemption links, payment addresses, or API keys.
+- A real purchase was completed and redeemed during development; do not add active gift-card codes, PINs, redemption links, payment addresses, or API keys.

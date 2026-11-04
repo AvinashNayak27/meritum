@@ -21,9 +21,9 @@ MERITUM makes a company recognition budget usable from the place teams already t
 ## Demo
 
 - Video: [Cap demo recording](https://cap.so/s/mes7dm5w10ygawb)
-- Real Bitrefill purchase invoice ID: `PENDING_REAL_PURCHASE`
+- Redeemed Bitrefill demonstration gift: [view redeemed gift](https://www.bitrefill.com/gift/gift-101dc38d-d87e-4439-9199-19df1b4ef09d)
 
-The demo is not complete until these values are replaced with a public 2–3 minute video and the ID of a real delivered purchase initiated by MERITUM. See [DEMO.md](meritum-agent/DEMO.md) for the recording script. Mask every voucher code, PIN, payment address, and redemption link.
+See [DEMO.md](meritum-agent/DEMO.md) for the recording script. The linked demonstration gift has already been redeemed; never publish active voucher codes, PINs, payment addresses, or redemption links.
 
 ## Run it (under 15 minutes)
 
