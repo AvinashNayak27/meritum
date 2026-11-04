@@ -72,6 +72,8 @@ export function createRewardService({
       if (!context.recipient?.email || !context.recipient?.name) {
         throw new RewardError('I could not find your Slack email, so I cannot send this gift card yet.');
       }
+      if (!config.livePurchases)
+        throw new RewardError('Reward purchases are currently disabled. No purchase was submitted.');
       if (!Number.isSafeInteger(amount) || amount < 1)
         throw new RewardError('Choose a positive whole-number Kudos amount.');
       if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 15)

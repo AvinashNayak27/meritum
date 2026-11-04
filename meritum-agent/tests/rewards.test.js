@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { assertUsdInvoice, publicProduct, RewardError, selectReward } from '../lib/bitrefill.js';
+import { config } from '../lib/config.js';
 import { createRewardService } from '../lib/rewards.js';
 
 const context = {
@@ -21,7 +22,10 @@ const product = {
   balance: 999,
   payment: { currency: 'USD', price: 1.25 },
 };
-function fixture({ available = 100, currency = 'USD', payError = false, paid = true } = {}) {
+function fixture({ available = 100, currency = 'USD', payError = false, paid = true, livePurchases = true } = {}) {
+  // These service tests exercise the guarded purchase path, not process-env parsing.
+  // Production remains off until LIVE_PURCHASES_ENABLED=true is set explicitly.
+  config.livePurchases = livePurchases;
   const calls = [];
   const invoice = { id: 'invoice-1', status: 'unpaid', payment: { method: 'balance', currency }, orders: [] };
   const ledger = {
@@ -47,6 +51,17 @@ function fixture({ available = 100, currency = 'USD', payError = false, paid = t
   };
   return { service: createRewardService({ api, ledger, records }), calls };
 }
+
+test('purchases stay disabled until the explicit live switch is enabled', async () => {
+  const original = config.livePurchases;
+  try {
+    const { service, calls } = fixture({ livePurchases: false });
+    await assert.rejects(service.redeem(context, product.id, 100), /currently disabled/);
+    assert.deepEqual(calls, []);
+  } finally {
+    config.livePurchases = original;
+  }
+});
 
 test('insufficient Kudos blocks every provider request', async () => {
   const { service, calls } = fixture({ available: 99 });

@@ -7,6 +7,8 @@ const csv = (value) =>
       .filter(Boolean),
   );
 
+const enabled = (value) => String(value).toLowerCase() === 'true';
+
 export const config = {
   teamId: process.env.SLACK_TEAM_ID,
   adminIds: csv(process.env.MERITUM_ADMIN_USER_IDS),
@@ -15,7 +17,8 @@ export const config = {
   initialAdminKudos: Number.parseInt(process.env.INITIAL_ADMIN_KUDOS || '2500', 10),
   kudosPerInr: Number.parseFloat(process.env.KUDOS_PER_INR || '1'),
   bitrefillApiKey: process.env.BITREFILL_API_KEY,
-  livePurchases: 'true',
+  // Purchasing is opt-in. A missing or malformed value must never enable a charge.
+  livePurchases: enabled(process.env.LIVE_PURCHASES_ENABLED),
   maxOrderUsd: Number.parseFloat(process.env.MAX_LIVE_SPEND_PER_ORDER_USD || '5'),
   maxTotalUsd: Number.parseFloat(process.env.MAX_LIVE_SPEND_TOTAL_USD || '8'),
 };
