@@ -1,0 +1,20 @@
+create table if not exists redemptions (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references organizations(id),
+  user_id uuid not null references users(id),
+  product_id text not null,
+  package_id text not null,
+  product_name text not null,
+  face_value numeric(12,2) not null,
+  face_currency text not null,
+  provider_cost numeric(12,4),
+  provider_currency text,
+  kudos_cost integer not null check (kudos_cost > 0),
+  status text not null check (status in ('QUOTED','AWAITING_CONFIRMATION','RESERVED','PURCHASING','FULFILLING','DELIVERED','PURCHASE_UNKNOWN','FAILED','EXPIRED')),
+  idempotency_key text not null unique,
+  invoice_id text,
+  order_id text,
+  encrypted_redemption_info text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
