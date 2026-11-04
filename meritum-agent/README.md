@@ -20,7 +20,7 @@ MERITUM makes a company recognition budget usable from the place teams already t
 
 ## Demo
 
-- Video: `PENDING_DEMO_VIDEO`
+- Video: [Cap demo recording](https://cap.so/s/mes7dm5w10ygawb)
 - Real Bitrefill purchase invoice ID: `PENDING_REAL_PURCHASE`
 
 The demo is not complete until these values are replaced with a public 2–3 minute video and the ID of a real delivered purchase initiated by MERITUM. See [DEMO.md](DEMO.md) for the recording script. Mask every voucher code, PIN, payment address, and redemption link.
