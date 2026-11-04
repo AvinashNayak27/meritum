@@ -31,6 +31,16 @@ const repository = {
     );
     return result.rows[0];
   },
+  async authorizedSpendToday() {
+    const result = await getPool().query(
+      `select coalesce(sum(kudos_cost), 0)::integer as total
+       from redemptions r join organizations o on o.id = r.organization_id
+       where o.slack_team_id = $1 and r.created_at >= date_trunc('day', now())
+         and r.status in ('RESERVED', 'PURCHASING', 'PURCHASE_UNKNOWN', 'FULFILLING', 'DELIVERED')`,
+      [config.teamId],
+    );
+    return result.rows[0].total;
+  },
 };
 
 export function createRewardService({
@@ -79,6 +89,15 @@ export function createRewardService({
       if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 15)
         throw new RewardError('Choose between 1 and 15 reward cards in one redemption.');
       const totalKudos = amount * quantity;
+      if (totalKudos > config.maxRewardPerPurchaseInr)
+        throw new RewardError(
+          `This redemption exceeds the ${config.maxRewardPerPurchaseInr} Kudos per-purchase limit. An administrator must approve a larger reward outside the agent.`,
+        );
+      const spendToday = await records.authorizedSpendToday();
+      if (spendToday + totalKudos > config.maxRewardPerDayInr)
+        throw new RewardError(
+          `This redemption exceeds the ${config.maxRewardPerDayInr} Kudos daily program limit. An administrator must approve it outside the agent.`,
+        );
       const wallet = await ledger.readWallet(context.userId);
       if (wallet.available < totalKudos)
         throw new RewardError(`This reward needs ${totalKudos} Kudos. You have ${wallet.available} available.`);

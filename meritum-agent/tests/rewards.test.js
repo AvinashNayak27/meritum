@@ -22,7 +22,7 @@ const product = {
   balance: 999,
   payment: { currency: 'USD', price: 1.25 },
 };
-function fixture({ available = 100, currency = 'USD', payError = false, paid = true, livePurchases = true } = {}) {
+function fixture({ available = 100, currency = 'USD', payError = false, paid = true, livePurchases = true, spendToday = 0 } = {}) {
   // These service tests exercise the guarded purchase path, not process-env parsing.
   // Production remains off until LIVE_PURCHASES_ENABLED=true is set explicitly.
   config.livePurchases = livePurchases;
@@ -37,7 +37,11 @@ function fixture({ available = 100, currency = 'USD', payError = false, paid = t
     completeRedemptionKudos: async (args) => calls.push(['complete', args]),
     failRedemptionKudos: async (args) => calls.push(['fail', args]),
   };
-  const records = { saveInvoice: async (...args) => calls.push(['save', args]), findOwned: async () => null };
+  const records = {
+    saveInvoice: async (...args) => calls.push(['save', args]),
+    findOwned: async () => null,
+    authorizedSpendToday: async () => spendToday,
+  };
   const api = async (path, options) => {
     calls.push([path, options]);
     if (path.startsWith('/products/')) return product;
@@ -67,6 +71,24 @@ test('insufficient Kudos blocks every provider request', async () => {
   const { service, calls } = fixture({ available: 99 });
   await assert.rejects(service.redeem(context, product.id, 100), /100 Kudos/);
   assert.deepEqual(calls, []);
+});
+
+test('face-value purchase and daily caps block an invoice before it is created', async () => {
+  const originalPurchaseCap = config.maxRewardPerPurchaseInr;
+  const originalDayCap = config.maxRewardPerDayInr;
+  config.maxRewardPerPurchaseInr = 100;
+  config.maxRewardPerDayInr = 150;
+  try {
+    let setup = fixture({ available: 200 });
+    await assert.rejects(setup.service.redeem(context, product.id, 100, 2), /per-purchase limit/);
+    assert.equal(setup.calls.some(([path]) => path === '/invoices'), false);
+    setup = fixture({ available: 100, spendToday: 75 });
+    await assert.rejects(setup.service.redeem(context, product.id, 100), /daily program limit/);
+    assert.equal(setup.calls.some(([path]) => path === '/invoices'), false);
+  } finally {
+    config.maxRewardPerPurchaseInr = originalPurchaseCap;
+    config.maxRewardPerDayInr = originalDayCap;
+  }
 });
 
 test('catalog projection excludes funding and provider prices', () => {
@@ -115,15 +137,21 @@ test('USD balance redemption reserves exactly INR face value before purchase', a
 });
 
 test('multiple identical cards use the requested quantity and reserve the total Kudos', async () => {
-  const { service, calls } = fixture({ available: 200 });
-  const result = await service.redeem(context, product.id, 100, 2);
-  const create = calls.find(([path]) => path === '/invoices');
-  assert.equal(create[1].body.products[0].quantity, 2);
-  assert.equal(calls.find(([path]) => path === 'reserve')[1].amount, 200);
-  assert.equal(calls.find(([path]) => path === 'complete')[1].amount, 200);
-  assert.equal(result.kudos_spent, 200);
-  assert.equal(result.face_value_inr, 100);
-  assert.equal(result.quantity, 2);
+  const originalPurchaseCap = config.maxRewardPerPurchaseInr;
+  config.maxRewardPerPurchaseInr = 200;
+  try {
+    const { service, calls } = fixture({ available: 200 });
+    const result = await service.redeem(context, product.id, 100, 2);
+    const create = calls.find(([path]) => path === '/invoices');
+    assert.equal(create[1].body.products[0].quantity, 2);
+    assert.equal(calls.find(([path]) => path === 'reserve')[1].amount, 200);
+    assert.equal(calls.find(([path]) => path === 'complete')[1].amount, 200);
+    assert.equal(result.kudos_spent, 200);
+    assert.equal(result.face_value_inr, 100);
+    assert.equal(result.quantity, 2);
+  } finally {
+    config.maxRewardPerPurchaseInr = originalPurchaseCap;
+  }
 });
 
 test('missing Slack email blocks purchase before a provider call', async () => {
